@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+  <style>
+    #container {
+      position: absolute;
+      width: 100%;
+      height: 600px;
+      top: 50px;
+      border: 1px black solid;
+    }
+
+    html,
+    body {
+      margin: 0;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    #pikachu {
+      position: absolute;
+      width: 130px;
+      bottom: 80px;
+      left: 20px;
+    }
+
+    #pokemon {
+      position: absolute;
+      width: 80px;
+      /* height: 100px; */
+      bottom: 80px;
+      left: 40px;
+    }
+
+    #pokeball {
+      position: absolute;
+      width: 50px;
+      bottom: 80px;
+      right: -100px;
+    }
+
+    #background {
+      position: relative;
+      width: 200%;
+      height: 100%;
+      background: url("../assets/forest2.jpg");
+      background-size: contain;
+      animation-name: bg-slide;
+      animation-duration: 20s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+
+    #score {
+      position: absolute;
+      color: rgb(88, 88, 88);
+      font-size: 2rem;
+      left: 20px;
+      top: 20px;
+    }
+
+    #start {
+        position: absolute;
+        top: 700px;
+        left: 50%;
+        width: 100px;
+        display: block;  
+    }
+
+    #gameover {
+        position: absolute;
+        top: 700px;
+        left: 50%;
+        width: 100px;
+        display: block; 
+        font-size: large;
+        font-weight: 700;
+    }
+    
+    #skill {
+        position: absolute;
+        width: 80px;
+        top: 490px;
+    }
+
+    /* #gameover {
+        position: absolute;
+        top: 700px;
+        left: 50%;
+    } */
+
+    @keyframes bg-slide {
+      from {
+        left: 0px;
+      }
+
+      to {
+        left: -100%;
+      }
+    }
+  </style>
+
+  <div id="container">
+    <div id="background"></div>
+    <img id="pikachu" src="../assets/pikachu-running (1).gif" alt="pikachu">
+    <img id="pokemon" src="../assets/DefenselessPoisedArizonaalligatorlizard.gif" alt="pokemon">
+    <img id="pokeball" src="../assets/220px-Pokebola-pokeball-png-0.png" alt="pokeball">
+    <div id="score">SCORE : 0</div>
+  </div>
+  <div id="gameover">
+    &nbsp게임오버
+    <button class="game_start_button">게임스타트</button>
+  </div>
+  <div id="start">
+    <button class="game_start_button">게임시작</button>
+  </div>
+
+  <img id="fire" src="../assets/pngwing.com (1).png" alt="thunder">
+
+
+
+
+  <script>
+    const WIDTH = 1200;
+    const HEIGHT = 600;
+
+    let pikachu = $("#pikachu");
+    let pokeball = $("#pokeball");
+
+    // 상태
+    let isJumping = false;
+    let isGameOver = false;
+    let score = 0;
+
+    function jump() {
+      if (isJumping || isGameOver) {
+        return;
+      }
+
+      isJumping = true;
+      pikachu.animate({ bottom: "+=100px" }, 500)
+        .animate({ bottom: "-=100px" }, 500, function () {
+          isJumping = false;
+        });
+    }
+
+    // function fire() {
+     
+    //    if (isJumping || isGameOver) {
+    //     return;
+    //   }
+
+    //   isFire = true;
+    //   pikachu.animate({ left: "+=100px" }, 500)
+    //     .animate({ left "-=100px" }, 500, function () {
+    //       isJumping = false;
+    //     });
+    // }
+
+
+
+    function throwPokeball() {
+        pokeball.animate({ right: "120%" }, 3000, function () {
+            pokeball.css({ right: "-100px" });
+
+        if (isGameOver == false) {
+          setTimeout(throwPokeball, 1000);
+          score += 100;
+          $("#score").text(`SCORE : ${score}`);
+        }
+      });
+    }
+
+    function moveFire() {
+      $("#fire").animate({ left: "0%" }, 3000, function () {
+        $("#fire").css({ right: "+100px" });
+      });
+    }
+
+
+
+
+
+    function pokemon() {
+      let pokeballLeft = parseInt(pokeball.css("left").replace("px", ""));
+      let pikachuLeft = parseInt(pikachu.css("left").replace("px", ""));
+      let pikachuRight = pikachuLeft + 100;
+
+      if (isJumping == false
+        && pikachuRight > pokeballLeft
+        && pokeballLeft > pikachuLeft
+      ) {
+        isGameOver = true;
+      }
+    }
+
+    function gameOver() {
+      isGameOver = true;
+      pokeball.stop();
+      $("#pikachu").hide();
+      $("#pokeball").hide();
+
+
+      // 게임오버 화면 보여주고
+      $("#gameover").show();
+      $("#start").hide();
+      $("#container").hide;
+      $("#pokemon").show()
+    }
+
+    function gameStart() {
+      $("#gameover").hide();
+      $("#start").show();
+      $("#container").show;
+      $("#pokemon").hide();
+      $("#fire").hide();
+      isGameOver = false;
+
+      pokeball.css({ right: "-100px" });
+    }
+
+    function fire() {
+        $("#fire").show();
+        moveFire();
+    }
+
+
+
+
+
+    $("body").keydown(function (event) {
+      // 마리오 현재 좌표 정보
+      let left = parseInt(pikachu.css("left").replace("px", ""));
+      let top = parseInt(pikachu.css("top").replace("px", ""));
+      let right = left + 100;
+      let bottom = top + 100;
+      let move = 25;  // 이동할 픽셀
+
+      switch (event.key) {
+        case " ":
+          jump();
+          break;
+        case "ArrowRight":
+          fire();
+          break;
+      }
+    });
+
+    $(".game_start_button").click(function () {
+      gameStart();
+    });
+
+    function game() {
+      setTimeout(throwPokeball, 1000);
+
+      // 게임 화면 그리기 30frame
+      setInterval(function () {
+        if (isGameOver) {
+          gameOver();
+        } else {
+          // 1초에 30번 그리기
+
+          // 마리오 사망 체크
+          pokemon();
+        }
+      }, 1000 / 30);
+    }
+
+    $(function () {
+      gameStart();
+
+      $(".game_start_button").click(function () {
+        game();
+      });
+    });
+  </script>
+</body>
+
+</html>
